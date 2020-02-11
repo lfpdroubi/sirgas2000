@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/lfpdroubi/sirgas2000#readme",
   "dependencies": {
+    "leaflet-mouse-position": "^1.2.0",
     "proj4leaflet": "^1.0.2"
   }
 }

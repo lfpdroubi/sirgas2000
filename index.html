@@ -8,13 +8,20 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
           integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
           crossorigin=""/>
-          
+    <link rel="stylesheet" href="./node_modules/leaflet-mouse-position/src/L.Control.MousePosition.css" /> 
+    <link rel="stylesheet" href="./bower_components/leaflet.mousecoordinate/dist/leaflet.mousecoordinate.css" />
+    
+    <!-- Add jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    <!-- Add Leaflet -->          
     <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
             integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
             crossorigin=""></script>
     <script src="./node_modules/proj4/dist/proj4.js"></script>
     <script src="./node_modules/proj4leaflet/src/proj4leaflet.js"></script>
-    <script src="https://leaflet.github.io/Leaflet.Graticule/Leaflet.Graticule.js"></script>
+    <script src="./node_modules/leaflet-mouse-position/src/L.Control.MousePosition.js"></script>  
+    <script src="./bower_components/leaflet.mousecoordinate/dist/leaflet.mousecoordinate.js"></script>  
             
     <style type="text/css">
      #map {
@@ -28,56 +35,127 @@
 
   </head>
 
-<body>
+  <body>
+    
+    <div id="map"></div>
+      <!-- MAP SCRIPT -->
+      <script>
+      
+        // Add AJAX request for data
+        
+        var unidades_federacao = $.ajax({
+          url:"https://raw.githubusercontent.com/lfpdroubi/sirgas2000/master/unidades_federacao.geojson",
+          dataType: "json",
+          success: console.log("unidades_federacao data successfully loaded."),
+          error: function (xhr) {
+            alert(xhr.statusText)
+          }
+        })
+        
+        var municipios = $.ajax({
+          url:"https://raw.githubusercontent.com/lfpdroubi/spuviz/master/municipios.geojson",
+          dataType: "json",
+          success: console.log("municipios data successfully loaded."),
+          error: function (xhr) {
+            alert(xhr.statusText)
+          }
+        })
+        
+        /* when().done() SECTION*/
+        // Add the variable for each of your AJAX requests to $.when()
+        $.when(unidades_federacao, municipios).done(function() {
   
-  <div id="map"></div>
-    <!-- MAP SCRIPT -->
-    <script>
-      var crs = new L.Proj.CRS('EPSG:31982',
-    '+proj=utm +zone=22 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
-    {
-      resolutions: [
-        8192, 4096, 2048, 1024, 512, 256, 128
-      ],
-    origin: [0, 0]
-    })
-    
-    var map = new L.Map('map', {
-      crs: crs
-    });
-    
-    var wmsLayer = L.tileLayer.wms(
-      'http://sigsc.sc.gov.br/sigserver/SIGSC/wms', {
-        layers: 'OrtoRGB-Landsat-2012',
-        maxNativeZoom: 19,
-        maxZoom: 100,
-        label: "SIG/SC",
-        iconURL: 'sig-sc.png'
-    }).addTo(map);
-    
-    map.setView([-27.675, -51.15], 3);
-    
-    var geojson = {
-      'type': 'Feature',
-      'geometry': {
-        'type': 'Point',
-        'coordinates': [713770.63, 6834198.82],
-      },
-      'properties': {
-        'name': 'Casa Farol de Santa Marta'
-      },
-      'crs': {
-        'type': 'name',
-        'properties': {
-            'name': 'urn:ogc:def:crs:EPSG::31982'
+          
+        var crs = new L.Proj.CRS('EPSG:31982',
+          '+proj=utm +zone=22 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
+        {
+          resolutions: [
+            16384, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, .5
+          ],
+        origin: [0, 0]
+        })
+        
+        var map = new L.Map('map', {
+          crs: crs
+        });
+        
+        var wmsLayer = L.tileLayer.wms(
+          'http://sigsc.sc.gov.br/sigserver/SIGSC/wms', {
+            layers: 'OrtoRGB-Landsat-2012',
+            maxNativeZoom: 19,
+            maxZoom: 100,
+            label: "SIG/SC",
+            iconURL: 'sig-sc.png'
+        }).addTo(map);
+        
+        map.setView([-27.675, -51.15], 3);
+        
+        // Adds SIRGAS2000 GeoJSON
+        var UF = L.Proj.geoJson(unidades_federacao.responseJSON, {
+          style: {
+            color: '#f1f4c7',
+            weight: 2,
+            fillOpacity: 0.25
+          },
+            onEachFeature: function( feature, layer ){
+              layer.bindPopup(
+                "<b>Estado: </b>" + feature.properties.NM_ESTADO + "<br>" +
+                "<b>Região: </b>" + feature.properties.NM_REGIAO + "<br>" +
+                "<b>Código: </b>" + feature.properties.CD_GEOCUF
+              );
+            }
+          }
+        ).addTo(map);
+        
+        // helper functions
+        function gestaoPraiaStatus(feature){
+          switch (feature.properties.gest_praia){
+          	case 1 : return 'Sim' ;
+            case 0 : return 'Não' ;
+            	break;
           }
         }
-      };
-    
-    L.Proj.geoJson(geojson, {
-      'pointToLayer': function(feature, latlng) {
-        return L.marker(latlng).bindPopup(feature.properties.name);
-      }
-    }).addTo(map);
 
-    </script>
+        function getAreaColor(feature){
+          console.log(feature)
+        	switch (feature.properties.gest_praia){
+          	case 1 : return 'OrangeRed' ;
+            case 0 : return 'LightYellow' ;
+            	break;
+          }
+        };
+
+        function areaStyle(feature){
+        	return {
+          	fillColor: getAreaColor(feature),
+            weight: 2,
+            opacity: 1,
+            color: 'white',
+            dashArray: '3',
+            fillOpacity: 0.5
+          }
+        };
+        
+        // Adds standard GeoJSON
+        var MUNICIPIOS = L.geoJSON(municipios.responseJSON, {
+          style: areaStyle,
+          onEachFeature: function( feature, layer ){
+            layer.bindPopup(
+              "<b>Município: </b>" + feature.properties.nome + "<br>" +
+              "<b>Geocodigo: </b>" + feature.properties.geocodigo + "<br>" +
+              "<b>Gestão de Praias: </b>" + gestaoPraiaStatus(feature)  + "<br>" +
+              "<b>NUP: </b>" + "<a href=" + feature.properties.nup_gpraia + ">Link para portaria.</a>"
+              );
+            }
+          }
+        ).addTo(map);
+        
+        L.control.mousePosition().addTo(map);
+        L.control.mouseCoordinate({gpsLong: false, utm:true,utmref:true}).addTo(map);
+        
+          });
+      </script>
+      
+  </body>
+  
+</html>
