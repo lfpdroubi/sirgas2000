@@ -14,6 +14,7 @@
             crossorigin=""></script>
     <script src="./node_modules/proj4/dist/proj4.js"></script>
     <script src="./node_modules/proj4leaflet/src/proj4leaflet.js"></script>
+    <script src="https://leaflet.github.io/Leaflet.Graticule/Leaflet.Graticule.js"></script>
             
     <style type="text/css">
      #map {
@@ -56,4 +57,27 @@
     
     map.setView([-27.675, -51.15], 3);
     
+    var geojson = {
+      'type': 'Feature',
+      'geometry': {
+        'type': 'Point',
+        'coordinates': [713770.63, 6834198.82],
+      },
+      'properties': {
+        'name': 'Casa Farol de Santa Marta'
+      },
+      'crs': {
+        'type': 'name',
+        'properties': {
+            'name': 'urn:ogc:def:crs:EPSG::31982'
+          }
+        }
+      };
+    
+    L.Proj.geoJson(geojson, {
+      'pointToLayer': function(feature, latlng) {
+        return L.marker(latlng).bindPopup(feature.properties.name);
+      }
+    }).addTo(map);
+
     </script>
