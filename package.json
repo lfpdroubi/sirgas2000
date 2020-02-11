@@ -1,0 +1,22 @@
+{
+  "name": "sirgas2000",
+  "version": "1.0.0",
+  "description": "mapa em sirgas 2000 com leaflet",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lfpdroubi/sirgas2000.git"
+  },
+  "author": "Luiz Fernando Palin Droubi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lfpdroubi/sirgas2000/issues"
+  },
+  "homepage": "https://github.com/lfpdroubi/sirgas2000#readme",
+  "dependencies": {
+    "proj4leaflet": "^1.0.2"
+  }
+}
