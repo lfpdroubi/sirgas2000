@@ -79,6 +79,15 @@
           crs: crs
         });
         
+        var CBERS = L.tileLayer.wms(
+          'http://brazildatacube.dpi.inpe.br/bdc/geoserver/bdc_brmosaic/wms', {
+            layers: 'cbers_full_resolution_tiles',
+            maxNativeZoom: 19,
+            maxZoom: 100,
+            label: "SIG/SC",
+            iconURL: 'sig-sc.png'
+        }).addTo(map);
+        
         var wmsLayer = L.tileLayer.wms(
           'http://sigsc.sc.gov.br/sigserver/SIGSC/wms', {
             layers: 'OrtoRGB-Landsat-2012',
@@ -87,6 +96,10 @@
             label: "SIG/SC",
             iconURL: 'sig-sc.png'
         }).addTo(map);
+        
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+          	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
         
         map.setView([-27.675, -51.15], 3);
         
@@ -152,6 +165,19 @@
         
         L.control.mousePosition().addTo(map);
         L.control.mouseCoordinate({gpsLong: false, utm:true,utmref:true}).addTo(map);
+        
+      var baseLayers = {
+        "CBERS": CBERS,
+		    "Esri Satélite": Esri_WorldImagery,
+		    "Ortofotos SDS 2012": wmsLayer
+	    };
+
+      var overlays = {
+		    "Unidades da Federação": UF,
+		    "Municípios": MUNICIPIOS
+	    };
+
+	    L.control.layers(baseLayers, overlays).addTo(map);
         
           });
       </script>
