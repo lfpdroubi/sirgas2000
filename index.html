@@ -44,7 +44,7 @@
         // Add AJAX request for data
         
         var unidades_federacao = $.ajax({
-          url:"https://raw.githubusercontent.com/lfpdroubi/SPUData/master/unidades_federacao.geojson",
+          url:"https://raw.githubusercontent.com/lfpdroubi/sirgas2000/master/unidades_federacao.geojson",
           dataType: "json",
           success: console.log("unidades_federacao data successfully loaded."),
           error: function (xhr) {
@@ -53,7 +53,7 @@
         })
         
         var municipios = $.ajax({
-          url:"https://raw.githubusercontent.com/lfpdroubi/SPUData/master/municipios.geojson",
+          url:"https://raw.githubusercontent.com/lfpdroubi/sirgas2000/master/municipios.geojson",
           dataType: "json",
           success: console.log("municipios data successfully loaded."),
           error: function (xhr) {
