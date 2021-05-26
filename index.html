@@ -22,6 +22,8 @@
     <script src="./node_modules/proj4leaflet/src/proj4leaflet.js"></script>
     <script src="./node_modules/leaflet-mouse-position/src/L.Control.MousePosition.js"></script>  
     <script src="./bower_components/leaflet.mousecoordinate/dist/leaflet.mousecoordinate.js"></script>  
+    <script src="./libs/Leaflet.SimpleGraticule/L.SimpleGraticule.js"></script>  
+    <script src="./libs/Leaflet.MetricGrid/Leaflet.MetricGrid.js"></script>  
             
     <style type="text/css">
      #map {
@@ -161,10 +163,37 @@
               );
             }
           }
-        ).addTo(map);
+        );
         
         L.control.mousePosition().addTo(map);
         L.control.mouseCoordinate({gpsLong: false, utm:true,utmref:true}).addTo(map);
+        
+        	    var options = {
+		    interval: 6,
+	      showshowOriginLabel: true,
+	      redraw: 'move'
+	    };
+	
+	    L.simpleGraticule(options).addTo(map);
+	    
+	    /** Definitions for a Swiss Grid - EPSG code 21781
+      */
+      L.SCGrid = L.MetricGrid.extend({
+        options: {
+          proj4ProjDef: "+proj=utm +zone=22 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
+          bounds: [[213000, 6728000] , [790500, 7141500]]        
+        }
+      });
+
+      // instance factory
+      L.scGrid = function (options) {
+        return new L.SCGrid(options);
+      };
+      
+      var sGrid = L.scGrid({
+		     color: '#C00',
+         showAxis100km: true
+	    }).addTo(map);
         
       var baseLayers = {
         "CBERS": CBERS,
@@ -174,12 +203,13 @@
 
       var overlays = {
 		    "Unidades da Federação": UF,
-		    "Municípios": MUNICIPIOS
+		    "Municípios": MUNICIPIOS,
+		    "Grid": sGrid
 	    };
 
 	    L.control.layers(baseLayers, overlays).addTo(map);
-        
-          });
+	    
+  });
       </script>
       
   </body>
